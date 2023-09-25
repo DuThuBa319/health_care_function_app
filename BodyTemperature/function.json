@@ -1,5 +1,5 @@
 {
-  "scriptFile": "read_blood_pressure.py",
+  "scriptFile": "read_thermometer.py",
   "bindings": [
     {
       "authLevel": "function",

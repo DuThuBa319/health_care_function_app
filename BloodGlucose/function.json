@@ -1,5 +1,5 @@
 {
-  "scriptFile": "read_blood_pressure.py",
+  "scriptFile": "read_blood_glucose.py",
   "bindings": [
     {
       "authLevel": "function",
