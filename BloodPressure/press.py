@@ -38,7 +38,7 @@ DIGITSDICT = {
 }
 
 
-def edged_img(cv_img, num_position=False, first_num=False):
+def edged_img(cv_img, num_position=False, first_num=False, first_num_3=False):
     num_channels = cv_img.shape[2]
     if num_channels > 1:
         try:
@@ -58,7 +58,7 @@ def edged_img(cv_img, num_position=False, first_num=False):
     # filtered_contours = [contour for contour in contours if cv2.contourArea(contour) >= 50]
     edged = np.zeros_like(roi)
     cv2.drawContours(edged, contours=filtered_contours, contourIdx=-1,
-                     color=255, thickness=cv2.FILLED)
+                     color=(255, 255, 255), thickness=cv2.FILLED)
     if first_num:
         contours, _ = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contour_max = 0
@@ -100,6 +100,30 @@ def edged_img(cv_img, num_position=False, first_num=False):
 
         erosion_kernel = np.ones((4, 3), np.uint8)
         eroded = cv2.erode(dilated, erosion_kernel, iterations=1)
+    #####################
+    if first_num_3:
+        contours, _ = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contour_max = 0
+        contour_cur = 0
+        for contour in contours:
+            try:
+                if cv2.contourArea(contour) >= cv2.contourArea(contour_cur):
+                    contour_max = contour
+                    contour_cur = contour_max
+            except:
+                contour_max = contour
+                contour_cur = contour_max
+        try:
+            (x, y, w, h) = cv2.boundingRect(contour_max)
+            print(w, h)
+        except:
+            print('digit in img are: [0]')
+            return 0
+        if h > 50:
+            if cv2.contourArea(contour_max) > 1000:
+                return 1
+        else:
+            return 0  
     contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     digits_contours = []
     for contour in contours:
@@ -173,12 +197,14 @@ def roi_press(image_path):
     digit3_png = cv2.resize(digit3_png, None, None, fx=2, fy=1)
     num += [edged_img(digit3_png)]
     number += [num[0] * 100 + num[1] * 10 + num[2]]
-    digit7_png = crop_image(digit, 200, 295, 242, 379)
+    digit7_png = crop_image(digit, 170, 295, 198, 379)
     digit7_png = cv2.resize(digit7_png, (120, 130))
-    num += [edged_img(digit7_png, num_position=True)]
-    digit8_png = crop_image(digit, 245, 295, 287, 379)
+    num += [edged_img(digit7_png, num_position=True, first_num_3=True)]
+    digit8_png = crop_image(digit, 200, 295, 242, 379)
     digit8_png = cv2.resize(digit8_png, (120, 130))
     num += [edged_img(digit8_png, num_position=True)]
-    number += [num[3] * 10 + num[4]]
-    print(number)
+    digit9_png = crop_image(digit, 245, 295, 287, 379)
+    digit9_png = cv2.resize(digit9_png, (120, 130))
+    num += [edged_img(digit9_png, num_position=True)]
+    number += [num[3] * 100 + num[4] * 10 + num[5]]
     return number
